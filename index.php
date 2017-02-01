@@ -1,42 +1,21 @@
 <?php
+require_once('app/autoload/Autoloader.php');
 
-$text = 'hello';
-$sp = 0;
+use \app\autoload\Autoloader;
+use \app\crypt\CryptSentence;
 
-if (isset($_POST['text'])) {
-    $text = htmlspecialchars($_POST['text']);
-    $sp = $_POST['sp'];
-    if (is_numeric($sp)) {
-        if ($sp<0) {
-            $sp%=26;
-            $sp+=26;
-        }
+Autoloader::register();
 
-    } else {
-        $sp = 0;
-    }
-}
+$cryptSentence = new CryptSentence();
+echo $cryptSentence->cipher('$text');
 
-$newtext = $text;
+$text = $newtext = 'hello';
+$shiftParameter = 0;
 
-if(isset($_POST['text'])){
-	for ($i=0;$i<strlen($text);$i++) {
-
-	  $ascii = ord($text[$i]);
-	  for($j=0;$j<$sp;$j++){
-		if($ascii == 90) { //uppercase bound
-		  $ascii = 65; //reset back to 'A'
-		}
-		else if($ascii == 122) { //lowercase bound
-		  $ascii = 97; //reset back to 'a'
-		}
-		else {
-		  $ascii++;
-		}
-	  }
-	  $newtext[$i] = chr($ascii);
-
-	}
+if (isset($_POST['text']) === true && isset($_POST['sp']) === true && is_numeric($_POST['sp']) === true) {
+    $text = htmlspecialchars($_POST['text'],ENT_COMPAT);
+    $shiftParameter = htmlspecialchars($_POST['sp'],ENT_COMPAT);
+    $newtext = $cryptSentence->crypto($text,$shiftParameter);
 }
 
 ?>
@@ -49,7 +28,7 @@ if(isset($_POST['text'])){
         </tr>
         <tr>
             <th>Shift Parameter:</th>
-            <td><input type=text size=2 name=sp type="number" pattern="\-{0,1}[0-9]{1,10}" value=<?php echo $sp; ?> onkeyup="this.value=this.value.replace(/[^0-9\-]/g,'');"></td>
+            <td><input type=text size=2 name=sp type="number" pattern="\-{0,1}[0-9]{1,10}" value=<?php echo $shiftParameter; ?> onkeyup="this.value=this.value.replace(/[^0-9\-]/g,'');"></td>
         </tr>
         <tr>
             <td></td><td><input type=submit name=submit value='Encode'>
